@@ -26,7 +26,7 @@ app.use('/note', noteRoutes)
 
 
 // SCRIPT TO INERT UOFC COURSES
-// require('fs').readFileSync('../Courses.txt', 'utf-8').split(/\r?\n/).forEach(function(line){
+// require('fs').readFileSync('./Courses.txt', 'utf-8').split(/\r?\n/).forEach(function(line){
 //     var courses = line.split(" ");
 //     var course = courses[0];
 //     for(var i=1; i<courses.length; i++){
