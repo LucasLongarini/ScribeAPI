@@ -3,7 +3,7 @@ const router = express.Router()
 const con = require('../db')
 
 router.get('/:schoolID/all', (req, res)=>{
-    if(!req.query.page || !req.params.schoolID || !req.query.page < 1)
+    if(!req.query.page || !req.params.schoolID || req.query.page < 1)
         return res.status(400).json({Error:"Bad Request"})
     
     const pageSize = 10
