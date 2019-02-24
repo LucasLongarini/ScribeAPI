@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS course(
     name varchar(10) NOT NULL,
     number int UNSIGNED NOT NULL,
     PRIMARY KEY(id, school_id),
-    FOREIGN KEY(school_id) REFERENCES school(id)
+    FOREIGN KEY(school_id) REFERENCES school(id),
+    UNIQUE KEY(school_id, name, number)
 );
 
 CREATE TABLE IF NOT EXISTS user(
