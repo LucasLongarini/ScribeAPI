@@ -3,6 +3,8 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const con = require('../db')
 const jwt = require('jsonwebtoken')
+// const checkAuth = require('../auth')
+const cloudinary = require('../cloudinary')
 
 //Need to add a check for unique email
 router.post('/register_email', (req,res)=>{
@@ -86,8 +88,29 @@ router.get('/:userId', (req, res)=>{
  
 })
 
-router.post('/picture', (err, res)=>{
-    
+router.post('/picture', (req, res)=>{
+    var data = new Buffer('');
+    req.on('data', (chunk)=>{
+        data = Buffer.concat([data, chunk]);
+    });
+    req.on('end', ()=>{
+        // var id = "user_"+req.authData.id
+        var id = "user_1"
+        cloudinary.v2.uploader.upload_stream({resource_type: 'image', public_id:id}, (error, result)=>{
+            if(error)
+                return res.status(500).json({Error:"Server Error"})
+            
+            var sql = "UPDATE user SET picture_path ='"+result.public_id+"'" +
+                        // " WHERE user_id = "+req.authData.id
+                        " WHERE id = 1"
+
+            con.query(sql, (err)=>{
+                if(err)return res.status(500).json({Error:"Server Error"})
+                else return res.status(200).json({Response:"Successful"})
+            })
+            
+        }).end(data);
+    });
 })
 
 module.exports = router;
