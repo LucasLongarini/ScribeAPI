@@ -68,7 +68,25 @@ router.post('/login_email', (req,res)=>{
 
 })
 
-router.get('/user', (req, res)=>{
+router.get('/:userId', (req, res)=>{
+    const id = req.params.userId
+    if(!id)
+        return res.status(400).json({"Error":"Bad Request"})
+    const sql = "SELECT user.*, fb_user.fb_id FROM user LEFT JOIN fb_user ON user.id = fb_user.id WHERE user.id = "+id
+    con.query(sql, (err, result)=>{
+        if(err){
+            console.log(err)
+            return res.status(500).json({"Error":"Server Error"})
+        }
+        else if (result.length <= 0)
+            return res.status(400).json({"Error":"Not Found"})
+
+        res.status(200).json(result[0])
+    })
+ 
+})
+
+router.post('/picture', (err, res)=>{
     
 })
 
