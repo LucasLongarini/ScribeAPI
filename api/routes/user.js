@@ -29,7 +29,7 @@ router.post('/register_email', (req,res)=>{
                 if(err)
                     return res.status(500).json({"Error":"Server Error"})
 
-                const token = jwt.sign({id:result.insertId, email:email}, "secret")
+                const token = jwt.sign({id:result.insertId, email:email}, process.env.JWT_SECRET)
                 res.status(200).json({"id":result.insertId,"token":token})
             })
         })
@@ -61,7 +61,7 @@ router.post('/login_email', (req,res)=>{
             else if(!good)
                 return res.status(400).json({"Error":"Auth Failed"})
             
-                const token = jwt.sign({id: result[0].id, email: result[0].email},"secret")
+                const token = jwt.sign({id: result[0].id, email: result[0].email},process.env.JWT_SECRET)
                 res.status(200).json({id: result[0].id, token: token})
         })
 
@@ -111,6 +111,10 @@ router.post('/picture', (req, res)=>{
             
         }).end(data);
     });
+})
+
+router.get('/authenticate',(req,res)=>{
+    
 })
 
 module.exports = router;

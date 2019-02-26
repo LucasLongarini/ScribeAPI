@@ -4,6 +4,7 @@ const con = require('./api/db');
 const bodyParser = require('body-parser');
 
 app.use(bodyParser.json())
+require('dotenv').config()
 
 const postRoutes = require('./api/routes/user')
 const commentRoutes = require('./api/routes/comment')

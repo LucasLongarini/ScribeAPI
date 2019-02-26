@@ -7,6 +7,11 @@ var connection = mysql.createConnection({
     database: "scribe"
 })
 
+// console.log(process.env.db_host)
+// console.log(process.env.db_user)
+// console.log(process.env.db_password)
+// console.log(process.env.db_database)
+
 connection.connect((err)=>{
     if (err) throw err
     console.log('Connected to MySQL')
