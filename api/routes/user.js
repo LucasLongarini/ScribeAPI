@@ -13,14 +13,14 @@ router.post('/register_email', (req,res)=>{
     var name = req.body.name
     var sex = req.body.sex
 
-    if(!email || !name || !password || !sex || sex != "male" || sex != "female") 
+    if(!email || !name || !password || !sex) 
         return res.status(400).json({"Error":"Bad Request"})
 
     bcrypt.hash(password, 10, (error, hash)=>{
         if(error)
             return res.status(500).json({"Error":"Server Error"})
 
-        var sql = "INSERT INTO user (name, sex, user_type) VALUES('"+name+"','"+sex+"','email')"
+        var sql = "INSERT INTO user (name, sex, user_type) VALUES('"+name.toLowerCase()+"','"+sex.toLowerCase()+"','email')"
         con.query(sql, (err, result)=>{
             if(err)
                 return res.status(500).json({"Error":"Server Error"})
@@ -116,6 +116,61 @@ router.post('/authenticate', checkAuth, (req,res)=>{
     res.status(200).json({id: req.authData.id, status:"Successfull"})
 })
 
+router.delete('/', checkAuth, (req, res)=>{
+    const id = req.authData.id
+
+    const sql = "DELETE FROM USER WHERE id="+id
+    con.query(sql, (err, result)=>{
+        if(err)
+            return res.status(500).json({"Error":"Server Error"})
+        
+        if(result.affectedRows>=1)
+            return res.status(200).json({Result:"Successfull"})
+        
+        res.status(400).json({Result:"Unsuccessfull"})
+    })
+})
+
+router.put('/name', checkAuth, (req,res)=>{
+    var name = req.body.name
+    if(!name) 
+        return res.status(400).json({Error:"Bad Request"})
+    const sql = "UPDATE user set name = '"+name+"' WHERE id="+req.authData.id
+    con.query(sql, (err, result)=>{
+        if(err)
+            return res.status(500).json({"Error":"Server Error"})
+        
+        else if(result.affectedRows >= 1)
+            return res.status(200).json({Result:"Success"})
+        
+        return res.status(400).json({Error:"Not Found"})
+    })
+})
+
+router.put('/email', checkAuth, (req, res)=>{
+    var email = req.body.email
+    if(!email)
+        return res.status(400).json({Error:"Bad Request"})
+    const sql = "UPDATE email_user SET email = '"+email.toLowerCase()+"' WHERE id="+req.authData.id
+    con.query(sql, (err, result)=>{
+        if(err){
+            if(err.errno == 1062)
+                return res.status(400).json({"Error":"Email already exists"})
+            else
+                return res.status(500).json({"Error":"Server Error"})
+        }
+
+        else if(result.affectedRows >= 1)
+            return res.status(200).json({Result:"Success"})
+        
+        return res.status(400).json({Error:"Not Found"})
+
+    })
+})
+
+router.put('/password', (req, res)=>{
+
+})
 
 
 module.exports = router;
