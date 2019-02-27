@@ -172,7 +172,13 @@ router.put('/password', (req, res)=>{
     var password = req.body.password
     if(!password)
         return res.status(400).json({Error:"Bad Request"})
-    
+    bcrypt.hash(password, 10,(error, hash)=>{
+        if(error)
+            return res.status(500).json({"Error":"Server Error"})
+        
+        const sql = ""
+
+    })
 })
 
 
