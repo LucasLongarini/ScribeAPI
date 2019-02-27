@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const con = require('../db')
+const checkAuth = require('../auth')
 
 router.get('/:schoolID/all', (req, res)=>{
     if(!req.query.page || !req.params.schoolID || req.query.page < 1)
@@ -17,6 +18,7 @@ router.get('/:schoolID/all', (req, res)=>{
         return res.status(200).json(result)
     })
 })
+
 router.get('/:courseId', checkAuth,(req, res)=>{
     const id= req.params.courseId
     if(!id)
@@ -27,7 +29,7 @@ router.get('/:courseId', checkAuth,(req, res)=>{
             return res.status(500).json({Error:"Server Error"})
         if(result.length<=0)
             return res.status(400).json({Error:"Not Found"})
-        res.status(200).json(result)
+        res.status(200).json(result[0])
     })
 })
 
