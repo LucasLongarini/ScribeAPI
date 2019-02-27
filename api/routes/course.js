@@ -17,5 +17,18 @@ router.get('/:schoolID/all', (req, res)=>{
         return res.status(200).json(result)
     })
 })
+router.get('/:courseId', checkAuth,(req, res)=>{
+    const id= req.params.courseId
+    if(!id)
+        return res.status(400).json({Error:"Bad Request"})
+    const sql="SELECT * FROM course WHERE id="+id
+    con.query(sql,(err,result)=>{
+        if(err)
+            return res.status(500).json({Error:"Server Error"})
+        if(result.length<=0)
+            return res.status(400).json({Error:"Not Found"})
+        res.status(200).json(result)
+    })
+})
 
 module.exports = router;
