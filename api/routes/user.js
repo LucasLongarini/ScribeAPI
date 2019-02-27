@@ -169,7 +169,10 @@ router.put('/email', checkAuth, (req, res)=>{
 })
 
 router.put('/password', (req, res)=>{
-
+    var password = req.body.password
+    if(!password)
+        return res.status(400).json({Error:"Bad Request"})
+    
 })
 
 
