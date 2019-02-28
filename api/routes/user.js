@@ -168,7 +168,7 @@ router.put('/email', checkAuth, (req, res)=>{
     })
 })
 
-router.put('/password', (req, res)=>{
+router.put('/password', checkAuth, (req, res)=>{
     var password = req.body.password
     if(!password)
         return res.status(400).json({Error:"Bad Request"})
@@ -176,7 +176,15 @@ router.put('/password', (req, res)=>{
         if(error)
             return res.status(500).json({"Error":"Server Error"})
         
-        const sql = ""
+        const sql = "UPDATE email_user SET password ='"+hash+"' WHERE id="+req.authData.id
+        con.query(sql, (err, result)=>{
+            if(err)
+                return res.status(500).json({Error:"Server Error"})
+            else if(result.affectedRows <= 0)
+                return res.status(400).json({Error:"Not found"})
+            
+            res.status(200).json({Result:"Success"})
+        })
 
     })
 })
