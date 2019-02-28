@@ -30,6 +30,7 @@ router.get('/:courseId', checkAuth,(req, res)=>{
         if(result.length<=0)
             return res.status(400).json({Error:"Not Found"})
         res.status(200).json(result[0])
+        res.status(200).json(result[0])
     })
 })
 
