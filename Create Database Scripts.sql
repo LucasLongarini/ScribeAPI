@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS comment(
 CREATE TABLE IF NOT EXISTS subscribed(
 	user_id int UNSIGNED NOT NULL,
     course_id int UNSIGNED NOT NULL,
+    date DATETIME NOT NULL DEFAULT NOW(),
     PRIMARY KEY(user_id, course_id),
 	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY(course_id) REFERENCES course(id) ON DELETE CASCADE
