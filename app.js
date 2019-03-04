@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json())
 require('dotenv').config()
 
-const postRoutes = require('./api/routes/user')
+const postRoutes = require('./api/routes/post')
 const commentRoutes = require('./api/routes/comment')
 const userRoutes = require('./api/routes/user')
 const courseRoutes = require('./api/routes/course')
