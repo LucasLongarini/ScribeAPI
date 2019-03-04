@@ -85,29 +85,29 @@ CREATE TABLE IF NOT EXISTS subscribed(
 
 CREATE TABLE IF NOT EXISTS note_likes(
 	note_id int UNSIGNED NOT NULL,
-    user_id int UNSIGNED NULL,
+    user_id int UNSIGNED NOT NULL,
     value int NOT NULL DEFAULT 0,
     PRIMARY KEY(note_id, user_id),
     FOREIGN KEY(note_id) REFERENCES note(id) ON DELETE CASCADE,
-	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL
+	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS post_likes(
 	post_id int UNSIGNED NOT NULL,
-    user_id int UNSIGNED NULL,
+    user_id int UNSIGNED NOT NULL,
     value int NOT NULL DEFAULT 0,
     PRIMARY KEY(post_id, user_id),
 	FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE,
-	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL
+	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS comment_likes(
 	comment_id int UNSIGNED NOT NULL,
-    user_id int UNSIGNED NULL,
+    user_id int UNSIGNED NOT NULL,
     value int NOT NULL DEFAULT 0,
     PRIMARY KEY(comment_id, user_id),
 	FOREIGN KEY(comment_id) REFERENCES comment(id) ON DELETE CASCADE,
-	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL
+	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS file_path(

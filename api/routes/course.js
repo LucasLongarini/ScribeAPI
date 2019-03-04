@@ -35,11 +35,14 @@ router.get('/getCourse', checkAuth,(req, res)=>{
 })
 
 router.get('/subscribed', checkAuth, (req,res)=>{
-    const sql = "SELECT course.id, course.school_id, course.name, course.number, subscribed.date FROM course "+
-    "INNER JOIN subscribed ON course.id=subscribed.course_id WHERE subscribed.user_id = "+req.authData.id
+    const sql = "SELECT course.id, course.school_id, course.name, course.number, subscribed.date,"+
+    " (SELECT COUNT(subscribed.user_id) FROM subscribed WHERE subscribed.course_id = course.id) AS enrolled"+
+    " FROM course INNER JOIN subscribed ON course.id=subscribed.course_id WHERE subscribed.user_id = "+req.authData.id
     con.query(sql, (err, result)=>{
-        if(err)
+        if(err){
+            console.log(err)
             return res.status(500).json({Error:"Server Error"})
+        }
         
         res.status(200).json(result)
     })
