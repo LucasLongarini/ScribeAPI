@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS course(
     name varchar(10) NOT NULL,
     number int UNSIGNED NOT NULL,
     PRIMARY KEY(id, school_id),
-    FOREIGN KEY(school_id) REFERENCES school(id),
+    FOREIGN KEY(school_id) REFERENCES school(id) ON DELETE CASCADE,
     UNIQUE KEY(school_id, name, number)
 );
 
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS post(
     content VARCHAR(1000) NOT NULL,
     votes int NOT NULL DEFAULT 0,
 	date DATETIME NOT NULL DEFAULT NOW(),
-    PRIMARY KEY(id, course_id),
+    PRIMARY KEY(id),
     FOREIGN KEY(course_id) REFERENCES course(id) ON DELETE CASCADE,
 	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
@@ -65,14 +65,12 @@ CREATE TABLE IF NOT EXISTS post(
 CREATE TABLE IF NOT EXISTS comment(
     id int UNSIGNED NOT NULL AUTO_INCREMENT,
     post_id int UNSIGNED NOT NULL,
-    course_id int UNSIGNED NOT NULL,
     user_id int UNSIGNED NOT NULL,
     content VARCHAR(1000) NOT NULL,
     votes int NOT NULL DEFAULT 0,
 	date DATETIME NOT NULL DEFAULT NOW(),
-    PRIMARY KEY(id, post_id, course_id),
+    PRIMARY KEY(id),
     FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE,
-    FOREIGN KEY(course_id) REFERENCES course(id) ON DELETE CASCADE,
 	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
@@ -87,34 +85,35 @@ CREATE TABLE IF NOT EXISTS subscribed(
 
 CREATE TABLE IF NOT EXISTS note_likes(
 	note_id int UNSIGNED NOT NULL,
-    user_id int UNSIGNED NOT NULL,
+    user_id int UNSIGNED NULL,
     value int NOT NULL DEFAULT 0,
     PRIMARY KEY(note_id, user_id),
-    FOREIGN KEY(note_id) REFERENCES note(id),
-	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
+    FOREIGN KEY(note_id) REFERENCES note(id) ON DELETE CASCADE,
+	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS post_likes(
 	post_id int UNSIGNED NOT NULL,
-    user_id int UNSIGNED NOT NULL,
+    user_id int UNSIGNED NULL,
     value int NOT NULL DEFAULT 0,
     PRIMARY KEY(post_id, user_id),
-	FOREIGN KEY(post_id) REFERENCES post(id),
-	FOREIGN KEY(user_id) REFERENCES user(id)
+	FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE,
+	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS comment_likes(
 	comment_id int UNSIGNED NOT NULL,
-    user_id int UNSIGNED NOT NULL,
+    user_id int UNSIGNED NULL,
     value int NOT NULL DEFAULT 0,
     PRIMARY KEY(comment_id, user_id),
-	FOREIGN KEY(comment_id) REFERENCES post(id),
-	FOREIGN KEY(user_id) REFERENCES user(id)
+	FOREIGN KEY(comment_id) REFERENCES comment(id) ON DELETE CASCADE,
+	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS file_path(
 	note_id int UNSIGNED NOT NULL,
     file_path varchar(255) NOT NULL,
+    ext varchar(16) NOT NULL,
     PRIMARY KEY(note_id, file_path),
     FOREIGN KEY(note_id) REFERENCES note(id) ON DELETE CASCADE
 );

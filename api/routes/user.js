@@ -20,10 +20,16 @@ router.post('/register_email', (req,res)=>{
         if(error)
             return res.status(500).json({"Error":"Server Error"})
 
-        var sql = "INSERT INTO user (name, sex, user_type) VALUES('"+name.toLowerCase()+"','"+sex.toLowerCase()+"','email')"
+        var sql = "INSERT INTO user (name, sex, user_type) "+
+                  "SELECT * FROM (SELECT '"+name.toLowerCase()+"','"+sex.toLowerCase()+"','email') AS temp "+
+                  "WHERE NOT EXISTS (SELECT email FROM email_user WHERE email = '"+email.toLowerCase()+"') LIMIT 1"
         con.query(sql, (err, result)=>{
             if(err)
                 return res.status(500).json({"Error":"Server Error"})
+            
+            if(result.affectedRows == 0)
+                return res.status(400).json({Error:"Email is already in use"})
+            
             sql = "INSERT INTO email_user (id, email, password) VALUES ('"+result.insertId+"','"+email.toLowerCase()+"','"+hash+"')"
             con.query(sql, (err, finalResult)=>{
                 if(err)
@@ -189,5 +195,9 @@ router.put('/password', checkAuth, (req, res)=>{
     })
 })
 
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
 
 module.exports = router;
