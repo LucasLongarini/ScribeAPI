@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken')
 const checkAuth = require('../auth')
 const cloudinary = require('../cloudinary')
 
-//Need to add a check for unique email
 router.post('/register_email', (req,res)=>{
     var email = req.body.email
     var password = req.body.password
@@ -15,6 +14,9 @@ router.post('/register_email', (req,res)=>{
 
     if(!email || !name || !password || !sex) 
         return res.status(400).json({"Error":"Bad Request"})
+
+    if(!validateEmail(email))
+        return res.status(400).json({"Error":"Not a valid email address"})
 
     bcrypt.hash(password, 10, (error, hash)=>{
         if(error)
