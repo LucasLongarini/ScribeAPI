@@ -10,7 +10,8 @@ router.post('/:postID', checkAuth, (req, res)=>{
 
     if(!content || !postID)
         return res.status(400).json({Error:"Bad Request"})
-    const sql = "INSERT INTO comment (post_id, user_id, content) VALUES ("+postID+","+req.authData.id+", ?)"
+    const sql = "INSERT INTO comment (post_id, user_id, content) VALUES ("+postID+","+req.authData.id+", ?);"+
+                "UPDATE post SET comments = comments + 1 WHERE id = "+postID
     con.query(sql, [content], (err,result)=>{
         if(err)
             return res.status(500).json({Error:"Server Error"})
@@ -18,7 +19,7 @@ router.post('/:postID', checkAuth, (req, res)=>{
         if(result.affectedRows == 0)
             return res.status.json({Error:"Could not add"})
 
-        res.status(200).json({id:result.insertId,Result:"Success"})
+        res.status(200).json({id:result[0].insertId,Result:"Success"})
     })
 })
 
@@ -49,5 +50,68 @@ router.get('/:postID', checkAuth, (req,res)=>{
         res.status(200).json(result)
     })
 })
+
+router.patch('/:commentID', checkAuth, (req,res)=>{
+    const id = req.params.commentID
+    const content = req.body.content
+    if(!id || !content)
+        return res.status(400).json({Error:"Bad Request"})
+
+    const sql = "UPDATE comment SET content = ? WHERE id="+id+" AND user_id="+req.authData.id
+    con.query(sql, [content], (err, result)=>{
+        if(err)
+            return res.status(500).json({Error:"Server Error"})
+        else if(result.affectedRows < 1)
+            return res.status(400).json({Error:"Not found"})
+        
+        res.status(200).json({Result:"Success"})
+
+    })
+})
+
+router.post('/:commentID/vote', checkAuth, (req,res)=>{
+    const value = req.query.value
+    const commentID = req.params.commentID
+    if(!value  || !commentID || isNaN(value))
+        return res.status(400).json({Error:"Bad Request"})
+
+    if(value != 1 && value != -1 && value !=2 && value != -2)
+        return res.status(400).json({Error:"Bad Request"})
+
+    const sql = "UPDATE comment SET votes = votes + "+value+" WHERE id="+commentID+";"+
+    "INSERT INTO comment_likes (user_id, comment_id, value) VALUES ("+req.authData.id+","+commentID+","+value+") "+
+    "ON DUPLICATE KEY UPDATE value=value +"+value
+
+    con.query(sql, (err, result)=>{
+        if(err)
+            return res.status(500).json({Error:"Server Error"})
+        
+        res.status(200).json({Result:"Success"})
+
+    })
+
+
+})
+
+//TODO: fix this and make it safer
+router.delete('/:commentID', checkAuth, (req, res)=>{
+    const commentID = req.params.commentID
+    const postID = req.query.postID
+    if(!commentID || !postID)
+        return res.status(400).json({Error:"Bad Request"})
+    
+    const sql = "DELETE FROM comment WHERE id="+commentID+" AND user_id="+req.authData.id+";"+
+                "UPDATE post SET comment = comment - 1 WHERE id="+postID
+    
+    con.query(sql, (err, result)=>{
+        if(err)
+            return res.status(500).json({Error:"Server Error"})
+
+        res.status(200).json({Result:"Success"})
+    })
+
+})
+
+
 
 module.exports = router;

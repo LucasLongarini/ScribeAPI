@@ -80,14 +80,13 @@ router.get('/top_rated/:courseID',checkAuth, (req,res)=>{
 })
 
 router.post('/:postID/vote', checkAuth, (req,res)=>{
-    console.log('here')
     const value = req.query.value
     const postID = req.params.postID
     if(!value  || !postID || isNaN(value))
         return res.status(400).json({Error:"Bad Request"})
 
     if(value != 1 && value != -1 && value !=2 && value != -2)
-        return res.status(400).json({Error:"Bad Request a"})
+        return res.status(400).json({Error:"Bad Request"})
 
     const sql = "UPDATE post SET votes = votes + "+value+" WHERE id="+postID+";"+
     "INSERT INTO post_likes (user_id, post_id, value) VALUES ("+req.authData.id+","+postID+","+value+") "+
