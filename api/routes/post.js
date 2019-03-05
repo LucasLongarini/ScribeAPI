@@ -41,7 +41,7 @@ router.get('/recent/:courseID',checkAuth, (req,res)=>{
         
 
         result.forEach((post)=>{
-            var user = {id:post.user_id, name:post.name, picture_path:post.picture_path, sex:post.sex, user_type:post.fb_id}
+            var user = {id:post.user_id, name:post.name, picture_path:post.picture_path, sex:post.sex, fb_id:post.fb_id}
             post.user = user
             delete post.user_id; delete post.name; delete post.picture_path; delete post.sex; delete post.fb_id;
         })
@@ -80,13 +80,14 @@ router.get('/top_rated/:courseID',checkAuth, (req,res)=>{
 })
 
 router.post('/:postID/vote', checkAuth, (req,res)=>{
+    console.log('here')
     const value = req.query.value
     const postID = req.params.postID
     if(!value  || !postID || isNaN(value))
         return res.status(400).json({Error:"Bad Request"})
 
     if(value != 1 && value != -1 && value !=2 && value != -2)
-        return res.status(400).json({Error:"Bad Request"})
+        return res.status(400).json({Error:"Bad Request a"})
 
     const sql = "UPDATE post SET votes = votes + "+value+" WHERE id="+postID+";"+
     "INSERT INTO post_likes (user_id, post_id, value) VALUES ("+req.authData.id+","+postID+","+value+") "+
