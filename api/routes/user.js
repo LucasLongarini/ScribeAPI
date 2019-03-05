@@ -82,7 +82,7 @@ router.get('/:userId', checkAuth,(req, res)=>{
     const id = req.params.userId
     if(!id)
         return res.status(400).json({"Error":"Bad Request"})
-    const sql = "SELECT user.*, fb_user.fb_id FROM user LEFT JOIN fb_user ON user.id = fb_user.id WHERE user.id = "+id
+    const sql = "SELECT * FROM user WHERE id = "+id
     con.query(sql, (err, result)=>{
         if(err){
             console.log(err)
@@ -139,7 +139,7 @@ router.delete('/', checkAuth, (req, res)=>{
     })
 })
 
-router.put('/name', checkAuth, (req,res)=>{
+router.patch('/name', checkAuth, (req,res)=>{
     var name = req.body.name
     if(!name) 
         return res.status(400).json({Error:"Bad Request"})
@@ -155,7 +155,7 @@ router.put('/name', checkAuth, (req,res)=>{
     })
 })
 
-router.put('/email', checkAuth, (req, res)=>{
+router.patch('/email', checkAuth, (req, res)=>{
     var email = req.body.email
     if(!email)
         return res.status(400).json({Error:"Bad Request"})
@@ -176,7 +176,7 @@ router.put('/email', checkAuth, (req, res)=>{
     })
 })
 
-router.put('/password', checkAuth, (req, res)=>{
+router.patch('/password', checkAuth, (req, res)=>{
     var password = req.body.password
     if(!password)
         return res.status(400).json({Error:"Bad Request"})
