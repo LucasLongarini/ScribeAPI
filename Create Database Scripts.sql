@@ -43,7 +43,6 @@ CREATE TABLE IF NOT EXISTS note(
     id int UNSIGNED NOT NULL AUTO_INCREMENT,
     course_id int UNSIGNED NOT NULL,
     user_id int UNSIGNED NOT NULL,
-    content VARCHAR(1000),
     votes int NOT NULL DEFAULT 0,
     date DATETIME NOT NULL DEFAULT NOW(),
     PRIMARY KEY(id, course_id),

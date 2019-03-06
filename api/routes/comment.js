@@ -41,11 +41,12 @@ router.get('/:postID', checkAuth, (req,res)=>{
         if(err)
             return res.status(500).json({Error:"Server Error"})
 
-        result.forEach((comment)=>{
-            var user = {id:comment.user_id, name:comment.name, picture_path:comment.picture_path, sex:comment.sex, fb_id:comment.fb_id}
-            comment.user = user
-            delete comment.user_id; delete comment.name; delete comment.picture_path; delete comment.sex; delete comment.fb_id;
-        })
+        for(var i=0; i<result.length; i++){
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            result[i].user = user
+            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
+        }
+        
         
         res.status(200).json(result)
     })

@@ -40,11 +40,11 @@ router.get('/recent/:courseID',checkAuth, (req,res)=>{
             return res.status(500).json({Error:"Server Error"})
         
 
-        result.forEach((post)=>{
-            var user = {id:post.user_id, name:post.name, picture_path:post.picture_path, sex:post.sex, fb_id:post.fb_id}
-            post.user = user
-            delete post.user_id; delete post.name; delete post.picture_path; delete post.sex; delete post.fb_id;
-        })
+        for(i=0; i<result.length; i++){
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            result[i].user = user
+            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
+        }
 
         res.status(200).json(result)
     })
@@ -68,12 +68,11 @@ router.get('/top_rated/:courseID',checkAuth, (req,res)=>{
         if(err)
             return res.status(500).json({Error:"Server Error"})
         
-
-        result.forEach((post)=>{
-            var user = {id:post.user_id, name:post.name, picture_path:post.picture_path, sex:post.sex, user_type:post.fb_id}
-            post.user = user
-            delete post.user_id; delete post.name; delete post.picture_path; delete post.sex; delete post.fb_id;
-        })
+        for(i=0; i<result.length; i++){
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            result[i].user = user
+            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
+        }
 
         res.status(200).json(result)
     })
