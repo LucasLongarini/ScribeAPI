@@ -1,9 +1,8 @@
 const express = require('express')
 const router = express.Router()
+const con = require('../db')
+const checkAuth = require('../auth')
 
-router.get('/:courseId', (req, res)=>{
-    let courseId = req.params.courseId
-    let page = req.query.page
-})
+
 
 module.exports = router;

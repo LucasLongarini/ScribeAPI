@@ -93,21 +93,28 @@ router.post('/:commentID/vote', checkAuth, (req,res)=>{
 
 })
 
-//TODO: fix this and make it safer
 router.delete('/:commentID', checkAuth, (req, res)=>{
     const commentID = req.params.commentID
     const postID = req.query.postID
     if(!commentID || !postID)
         return res.status(400).json({Error:"Bad Request"})
     
-    const sql = "DELETE FROM comment WHERE id="+commentID+" AND user_id="+req.authData.id+";"+
-                "UPDATE post SET comment = comment - 1 WHERE id="+postID
-    
+    var sql = "DELETE FROM comment WHERE id="+commentID+" AND user_id="+req.authData.id+" AND post_id="+postID
+                
     con.query(sql, (err, result)=>{
         if(err)
             return res.status(500).json({Error:"Server Error"})
+        else if(result.affectedRows < 1)
+            return res.status(400).json({Error:"Not Found"})
 
-        res.status(200).json({Result:"Success"})
+        sql = "UPDATE post SET comments = comments - 1 WHERE id="+postID
+        con.query(sql, (err2)=>{
+            if(err2)
+                return res.status(500).json({Error:"Server Error"})
+            
+            res.status(200).json({Result:"Success"})
+
+        })
     })
 
 })
