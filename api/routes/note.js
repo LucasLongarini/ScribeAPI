@@ -40,23 +40,100 @@ router.post('/:courseID', checkAuth, (req,res)=>{
   
 })
 
-
 router.get('/:courseID', checkAuth, (req,res)=>{
     const courseID = req.params.courseID
     const page = req.query.page
     if(!courseID || !page || isNaN(page) || page < 1)
         return res.status(400).json({Error:"Bad Request"})
 
-    const sql = "SELECT note.*, file_path.* FROM note, file_path WHERE note.course_id="+courseID + " AND file_path.note_id=note.id"
-    console.log(sql)
+    const pageSize = 3
+    var startRecord = pageSize*(page-1)
+
+    const sql = "SELECT note.*, user.name, user.picture_path, user.sex, user.fb_id, COALESCE(note_likes.value, 0) AS like_value FROM note "+
+                " INNER JOIN user ON user.id=note.user_id LEFT JOIN note_likes ON note_likes.note_id=note.id AND note_likes.user_id="+req.authData.id+
+                " WHERE note.course_id="+courseID+" ORDER BY note.id LIMIT "+startRecord+", "+pageSize
     con.query(sql, (err,result)=>{
         if(err)
             return res.status(500).json({Error:"Server Error"})
+        else if(result.length == 0)
+            return res.status(200).json([])
+
+        for(i=0; i<result.length; i++){
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            result[i].user = user
+            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
+        }
         
-        res.status(200).json(result)
+        var fileSql = "SELECT * FROM file_path WHERE note_id="+result[0].id
+        for(var i=1; i<result.length; i++)
+            fileSql += " OR note_id="+result[i].id
+        
+        fileSql += " ORDER BY note_id"
+
+        con.query(fileSql, (err, fileResult)=>{
+            if(err)
+                return res.status(500).json({Error:"Server Error"})
+            
+                
+                for(var i=0, j=0; i<result.length; i++){
+                    result[i].file_path = []
+                    while(j<fileResult.length){
+                        if(fileResult[j].note_id===result[i].id){
+                            result[i].file_path.push(fileResult[j])
+                            j++
+                        }
+                        else
+                            break;                        
+                    }
+
+                }
+            
+            res.status(200).json(result)
+        })
     })
 
 })
 
+router.delete('/:noteID', checkAuth, (req,res)=>{
+    const noteID = req.params.noteID
+    if(!noteID)
+        return res.status(400).json({Error:"Bad Request"})
+    
+    const sql = "DELETE FROM note WHERE id="+noteID+" AND user_id="+req.authData.id
+    con.query(sql,(err,result)=>{
+        if(err)
+            return res.status(500).json({Error:"Server error"})
+
+        if(result.affectedRows < 1)
+            return res.status(400).json({Error:"Not found"})
+
+        res.status(200).json({Result:"Success"})
+
+    })
+})
+
+router.post('/:noteID/vote', checkAuth, (req,res)=>{
+    const value = req.query.value
+    const noteID = req.params.noteID
+    if(!value  || !noteID || isNaN(value))
+        return res.status(400).json({Error:"Bad Request"})
+
+    if(value != 1 && value != -1 && value !=2 && value != -2)
+        return res.status(400).json({Error:"Bad Request"})
+
+    const sql = "UPDATE note SET votes = votes + "+value+" WHERE id="+noteID+";"+
+    "INSERT INTO note_likes(user_id, note_id, value) VALUES ("+req.authData.id+","+noteID+","+value+") "+
+    "ON DUPLICATE KEY UPDATE value=value +"+value
+
+    con.query(sql, (err, result)=>{
+        if(err)
+            return res.status(500).json({Error:"Server Error"})
+        
+        res.status(200).json({Result:"Success"})
+
+    })
+
+
+})
 
 module.exports = router;
