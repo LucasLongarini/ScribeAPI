@@ -17,6 +17,21 @@ router.get('/get_course', checkAuth,(req, res)=>{
     })
 })
 
+const GetCourse = (id, callback)=>{
+    const sql="SELECT * FROM course WHERE id="+id
+    con.query(sql,(err,result)=>{
+        if(err){
+            callback("Error: Server Error",null)
+            return
+        }
+        if(result.length<=0){
+            callback("Error: Not Found",null)
+            return
+        }
+        callback(null,result[0])
+    })
+}
+
 router.get('/subscribed', checkAuth, (req,res)=>{
     const sql = "SELECT course.id, course.school_id, course.name, course.number, subscribed.date,"+
     " (SELECT COUNT(subscribed.user_id) FROM subscribed WHERE subscribed.course_id = course.id) AS enrolled"+
