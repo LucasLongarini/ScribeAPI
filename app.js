@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const con = require('./api/db');
 const bodyParser = require('body-parser');
+const passport = require('passport')
 
+app.use(passport.initialize());
 app.use(bodyParser.json())
 require('dotenv').config()
 

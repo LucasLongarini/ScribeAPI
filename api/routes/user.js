@@ -5,6 +5,61 @@ const con = require('../db')
 const jwt = require('jsonwebtoken')
 const checkAuth = require('../auth')
 const cloudinary = require('../cloudinary')
+var FacebookTokenStrategy = require('passport-facebook-token');
+var passport = require('passport');
+
+
+passport.use(new FacebookTokenStrategy({
+    clientID: process.env.FB_APP_ID,
+    clientSecret: process.env.FB_APP_SECRET,
+    fbGraphVersion: 'v3.0'
+  }, function(accessToken, refreshToken, profile, done) {
+    let user = {
+        'name': profile.displayName,
+        'id': profile.id,
+        'token': accessToken
+      }
+      return done(null, user);
+  }
+))
+
+router.post('/login_facebook',passport.authenticate('facebook-token',{session: false}), (req,res)=>{
+    const user = req.user
+    if(!user)
+        res.status(400).json({Error:"Auth Failed"})
+    
+    var sql = "INSERT INTO user (name, user_type, fb_id) VALUES (?, 'facebook', "+user.id+")"
+
+    con.query(sql,[user.name], (err,result)=>{
+        if(err){
+            if(err.errno==1062){
+                sql = "SELECT id FROM user WHERE fb_id="+user.id
+                con.query(sql,(err,result)=>{
+                    if(err)
+                        return res.status(500).json({Error:"Server error"})
+                    else if(result.lenght==0)
+                        return res.status(500).json({Error:"Server error"})
+                    else{
+                        var token = jwt.sign({id:result.insertId}, process.env.JWT_SECRET)
+                        res.status(200).json({"id":result[0].id,"token":token})
+                        return
+                    }
+                })
+            }
+            else
+                return res.status(500).json({Error:"Server error"})
+        }
+        else if(result.affectedRows==0)
+            return res.status(500).json({Error:"Server error"})
+        
+        else{
+            var token2 = jwt.sign({id:result.insertId}, process.env.JWT_SECRET)
+            res.status(200).json({"id":result.insertId,"token":token2})
+        }
+        
+    })
+    
+})
 
 router.post('/register_email', (req,res)=>{
     var email = req.body.email

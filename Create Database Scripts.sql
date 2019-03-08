@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS user(
 	id int UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(255) NOT NULL,
     picture_path varchar(255),
-    sex varchar(6) NOT NULL,
-    user_type varchar(10) NOT NULL
-    fb_id int UNSIGNED NULL UNIQUE
+    sex varchar(6) NULL,
+    user_type varchar(10) NOT NULL,
+    fb_id bigint UNSIGNED NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS email_user(
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS post(
     user_id int UNSIGNED NOT NULL,
     content VARCHAR(1000) NOT NULL,
     votes int NOT NULL DEFAULT 0,
-    comments, int UNSIGNED NOT NULL DEFAULT 0,
+    comments int UNSIGNED NOT NULL DEFAULT 0,
 	date DATETIME NOT NULL DEFAULT NOW(),
     PRIMARY KEY(id),
     FOREIGN KEY(course_id) REFERENCES course(id) ON DELETE CASCADE,
