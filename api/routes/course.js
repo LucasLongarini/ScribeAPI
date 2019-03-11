@@ -34,8 +34,9 @@ const GetCourse = (id, callback)=>{
 
 router.get('/subscribed', checkAuth, (req,res)=>{
     const sql = "SELECT course.id, course.school_id, course.name, course.number, subscribed.date,"+
-    " (SELECT COUNT(subscribed.user_id) FROM subscribed WHERE subscribed.course_id = course.id) AS enrolled"+
-    " FROM course INNER JOIN subscribed ON course.id=subscribed.course_id WHERE subscribed.user_id = "+req.authData.id
+    " (SELECT COUNT(subscribed.user_id) FROM subscribed WHERE subscribed.course_id = course.id) AS number_enrolled"+
+    " FROM course INNER JOIN subscribed ON course.id=subscribed.course_id WHERE subscribed.user_id = "+req.authData.id+
+    " ORDER BY subscribed.date"
     con.query(sql, (err, result)=>{
         if(err){
             console.log(err)
@@ -57,8 +58,10 @@ router.post('/subscribe', checkAuth, (req,res)=>{
                 "SELECT id, '"+req.authData.id+"' FROM course WHERE school_id = "+schoolID+" AND name = '"+course+"' AND number = "+number
 
     con.query(sql, (err, result)=>{
-        if (err)
+        if (err){
+            console.log(err)
             return res.status(500).json({Error:"Server Error"})
+        }
         
         else if (result.affectedRows < 1)
             return res.status(400).json({Error:"Not Found"})

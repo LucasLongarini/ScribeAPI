@@ -16,8 +16,7 @@ passport.use(new FacebookTokenStrategy({
   }, function(accessToken, refreshToken, profile, done) {
     let user = {
         'name': profile.displayName,
-        'id': profile.id,
-        'token': accessToken
+        'fb_id': profile.id,
       }
       return done(null, user);
   }
@@ -28,20 +27,20 @@ router.post('/login_facebook',passport.authenticate('facebook-token',{session: f
     if(!user)
         res.status(400).json({Error:"Auth Failed"})
     
-    var sql = "INSERT INTO user (name, user_type, fb_id) VALUES (?, 'facebook', "+user.id+")"
+    var sql = "INSERT INTO user (name, user_type, fb_id) VALUES (?, 'facebook', "+user.fb_id+")"
 
     con.query(sql,[user.name], (err,result)=>{
         if(err){
             if(err.errno==1062){
-                sql = "SELECT id FROM user WHERE fb_id="+user.id
+                sql = "SELECT user.* FROM user WHERE fb_id="+user.fb_id
                 con.query(sql,(err,result)=>{
                     if(err)
                         return res.status(500).json({Error:"Server error"})
                     else if(result.lenght==0)
                         return res.status(500).json({Error:"Server error"})
                     else{
-                        var token = jwt.sign({id:result.insertId}, process.env.JWT_SECRET)
-                        res.status(200).json({"id":result[0].id,"token":token})
+                        var token = jwt.sign({id:result[0].id, email:"fb"}, process.env.JWT_SECRET)
+                        res.status(200).json({"user":result[0],"token":token})
                         return
                     }
                 })
@@ -53,8 +52,12 @@ router.post('/login_facebook',passport.authenticate('facebook-token',{session: f
             return res.status(500).json({Error:"Server error"})
         
         else{
-            var token2 = jwt.sign({id:result.insertId}, process.env.JWT_SECRET)
-            res.status(200).json({"id":result.insertId,"token":token2})
+            user.id=result.insertId
+            user.picture_path=null;
+            user.sex = null
+            user.user_type = "facebook"
+            var token2 = jwt.sign({id:result.insertId, email:"fb"}, process.env.JWT_SECRET)
+            res.status(200).json({"user":user,"token":token2})
         }
         
     })
@@ -107,7 +110,8 @@ router.post('/login_email', (req,res)=>{
     if(!email || !password) 
         return res.status(400).json({"Error":"Bad Request"})
 
-    var sql = "SELECT * FROM email_user WHERE email="+"'"+email+"'"
+    var sql = "SELECT email_user.*, user.* FROM email_user"+
+              " INNER JOIN user ON user.id = email_user.id WHERE email_user.email="+"'"+email+"'"
     con.query(sql, (err, result)=>{
         if(err){
             console.log(err)
@@ -123,9 +127,17 @@ router.post('/login_email', (req,res)=>{
             
             else if(!good)
                 return res.status(400).json({"Error":"Auth Failed"})
-            
+
+                const user = {
+                    id:result[0].id,
+                    name:result[0].name,
+                    picture_path:result[0].picture_path,
+                    sex:result[0].sex,
+                    user_type:result[0].user_type,
+                    fb_id:result[0].fb_id
+                }
                 const token = jwt.sign({id: result[0].id, email: result[0].email},process.env.JWT_SECRET)
-                res.status(200).json({id: result[0].id, token: token})
+                res.status(200).json({user: user, token: token})
         })
 
         
@@ -176,7 +188,16 @@ router.post('/picture', checkAuth,(req, res)=>{
 })
 
 router.post('/authenticate', checkAuth, (req,res)=>{
-    res.status(200).json({id: req.authData.id, status:"Successfull"})
+    const sql = "SELECT * FROM user WHERE id="+req.authData.id
+    con.query(sql, (err,result)=>{
+        console.log("hello")
+        if(err)
+            return res.status(500).json({Error:"Server error"})
+        else if(result.lenght == 0)
+            return res.status(400).json({Error:"Not found"})
+
+        res.status(200).json(result[0])
+    })
 })
 
 router.delete('/', checkAuth, (req, res)=>{
