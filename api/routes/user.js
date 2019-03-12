@@ -20,8 +20,7 @@ passport.use(new FacebookTokenStrategy({
         'token': accessToken
       }
       return done(null, user);
-  }
-))
+  }))
 
 router.post('/login_facebook',passport.authenticate('facebook-token',{session: false}), (req,res)=>{
     const user = req.user
