@@ -31,7 +31,7 @@ router.get('/recent/:courseID',checkAuth, (req,res)=>{
     const pageSize = 10
     var startRecord = pageSize*(page-1)
 
-    const sql = "SELECT post.*, user.name, user.picture_path, user.sex, user.fb_id, COALESCE(post_likes.value, 0) AS like_value FROM post INNER JOIN user ON user.id=post.user_id"+
+    const sql = "SELECT post.*, user.*, COALESCE(post_likes.value, 0) AS like_value FROM post INNER JOIN user ON user.id=post.user_id"+
     " LEFT JOIN post_likes ON post_likes.user_id="+req.authData.id+" AND post_likes.post_id=post.id"
     " WHERE post.course_id="+courseID+" ORDER BY post.date DESC LIMIT "+startRecord+", "+pageSize 
 
@@ -41,7 +41,7 @@ router.get('/recent/:courseID',checkAuth, (req,res)=>{
         
 
         for(i=0; i<result.length; i++){
-            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, user_type:result[i].user_type, fb_id:result[i].fb_id}
             result[i].user = user
             delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
         }
@@ -60,7 +60,7 @@ router.get('/top_rated/:courseID',checkAuth, (req,res)=>{
     const pageSize = 10
     var startRecord = pageSize*(page-1)
 
-    const sql = "SELECT post.*, user.name, user.picture_path, user.sex, user.fb_id, COALESCE(post_likes.value, 0) AS like_value FROM post INNER JOIN user ON user.id=post.user_id"+
+    const sql = "SELECT post.*, user.*, COALESCE(post_likes.value, 0) AS like_value FROM post INNER JOIN user ON user.id=post.user_id"+
     " LEFT JOIN post_likes ON post_likes.user_id="+req.authData.id+" AND post_likes.post_id=post.id"
     " WHERE post.course_id="+courseID+" ORDER BY post.votes, post.date DESC LIMIT "+startRecord+", "+pageSize 
     
@@ -69,7 +69,7 @@ router.get('/top_rated/:courseID',checkAuth, (req,res)=>{
             return res.status(500).json({Error:"Server Error"})
         
         for(i=0; i<result.length; i++){
-            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, user_type:result[i].user_type, fb_id:result[i].fb_id}
             result[i].user = user
             delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
         }
