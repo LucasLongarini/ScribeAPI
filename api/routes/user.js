@@ -88,7 +88,7 @@ router.post('/register_email', (req,res)=>{
                 return res.status(500).json({"Error":"Server Error"})
             
             if(result.affectedRows == 0)
-                return res.status(400).json({Error:"Email is already in use"})
+                return res.status(409).json({Error:"Email is already in use"})
             
             sql = "INSERT INTO email_user (id, email, password) VALUES ('"+result.insertId+"','"+email.toLowerCase()+"','"+hash+"')"
             con.query(sql, (err, finalResult)=>{
@@ -190,7 +190,6 @@ router.post('/picture', checkAuth,(req, res)=>{
 router.post('/authenticate', checkAuth, (req,res)=>{
     const sql = "SELECT * FROM user WHERE id="+req.authData.id
     con.query(sql, (err,result)=>{
-        console.log("hello")
         if(err)
             return res.status(500).json({Error:"Server error"})
         else if(result.lenght == 0)
