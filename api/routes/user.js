@@ -29,7 +29,7 @@ router.post('/login_facebook',passport.authenticate('facebook-token',{session: f
     
     var sql = "INSERT INTO user (name, user_type, fb_id) VALUES (?, 'facebook', "+user.fb_id+")"
 
-    con.query(sql,[user.name], (err,result)=>{
+    con.query(sql,[user.name.toLowerCase()], (err,result)=>{
         if(err){
             if(err.errno==1062){
                 sql = "SELECT user.* FROM user WHERE fb_id="+user.fb_id
