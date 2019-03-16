@@ -33,8 +33,8 @@ router.get('/:postID', checkAuth, (req,res)=>{
     const pageSize = 10
     var startRecord = pageSize*(page-1)
 
-    const sql = "SELECT comment.*, user.name, user.picture_path, user.sex, user.fb_id, COALESCE(comment_likes.value, 0) AS like_value FROM comment INNER JOIN user ON user.id=comment.user_id"+
-                " LEFT JOIN comment_likes ON comment_likes.user_id="+req.authData.id+" AND comment_likes.comment_id=comment.id"
+    const sql = "SELECT comment.*, user.id AS user_id, user.name, user.picture_path, user.sex, user.user_type, user.fb_id, COALESCE(comment_likes.value, 0) AS like_value FROM comment INNER JOIN user ON user.id=comment.user_id"+
+                " LEFT JOIN comment_likes ON comment_likes.user_id="+req.authData.id+" AND comment_likes.comment_id=comment.id"+
                 " WHERE comment.post_id="+postID+" ORDER BY comment.date DESC LIMIT "+startRecord+", "+pageSize 
 
     con.query(sql, (err, result)=>{
@@ -42,9 +42,9 @@ router.get('/:postID', checkAuth, (req,res)=>{
             return res.status(500).json({Error:"Server Error"})
 
         for(var i=0; i<result.length; i++){
-            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path,user_type:result[i].user_type, sex:result[i].sex, fb_id:result[i].fb_id}
             result[i].user = user
-            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
+            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;delete result[i].user_type;
         }
         
         
@@ -119,7 +119,6 @@ router.delete('/:commentID', checkAuth, (req, res)=>{
     })
 
 })
-
 
 
 module.exports = router;

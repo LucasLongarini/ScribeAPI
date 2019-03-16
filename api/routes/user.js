@@ -68,6 +68,7 @@ router.post('/register_email', (req,res)=>{
     var password = req.body.password
     var name = req.body.name
     var sex = req.body.sex
+    var picturePath = req.body.picture_path
 
     if(!email || !name || !password || !sex) 
         return res.status(400).json({"Error":"Bad Request"})
@@ -79,10 +80,10 @@ router.post('/register_email', (req,res)=>{
         if(error)
             return res.status(500).json({"Error":"Server Error"})
 
-        var sql = "INSERT INTO user (name, sex, user_type) "+
-                  "SELECT * FROM (SELECT '"+name.toLowerCase()+"','"+sex.toLowerCase()+"','email') AS temp "+
+        var sql = "INSERT INTO user (name, sex, user_type, picture_path) "+
+                  "SELECT * FROM (SELECT '"+name.toLowerCase()+"','"+sex.toLowerCase()+"','email',?) AS temp "+
                   "WHERE NOT EXISTS (SELECT email FROM email_user WHERE email = '"+email.toLowerCase()+"') LIMIT 1"
-        con.query(sql, (err, result)=>{
+        con.query(sql,[picturePath], (err, result)=>{
             if(err)
                 return res.status(500).json({"Error":"Server Error"})
             
