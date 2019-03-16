@@ -42,9 +42,9 @@ router.get('/:postID', checkAuth, (req,res)=>{
             return res.status(500).json({Error:"Server Error"})
 
         for(var i=0; i<result.length; i++){
-            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path,user_type:result[i].user_type, sex:result[i].sex, fb_id:result[i].fb_id}
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, user_type:result[i].user_type, fb_id:result[i].fb_id}
             result[i].user = user
-            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;delete result[i].user_type;
+            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;delete result[i].user_type
         }
         
         
