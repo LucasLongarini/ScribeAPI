@@ -62,7 +62,7 @@ router.get('/top_rated/:courseID',checkAuth, (req,res)=>{
 
     const sql = "SELECT post.*, user.id AS user_id, user.name, user.picture_path, user.sex, user.user_type, user.fb_id, COALESCE(post_likes.value, 0) AS like_value FROM post INNER JOIN user ON user.id=post.user_id"+
     " LEFT JOIN post_likes ON post_likes.user_id="+req.authData.id+" AND post_likes.post_id=post.id"+
-    " WHERE post.course_id="+courseID+" ORDER BY post.votes, post.date DESC LIMIT "+startRecord+", "+pageSize 
+    " WHERE post.course_id="+courseID+" ORDER BY post.votes DESC, post.date DESC LIMIT "+startRecord+", "+pageSize 
     
     con.query(sql, (err, result)=>{
         if(err)

@@ -35,7 +35,7 @@ router.get('/:postID', checkAuth, (req,res)=>{
 
     const sql = "SELECT comment.*, user.id AS user_id, user.name, user.picture_path, user.sex, user.user_type, user.fb_id, COALESCE(comment_likes.value, 0) AS like_value FROM comment INNER JOIN user ON user.id=comment.user_id"+
                 " LEFT JOIN comment_likes ON comment_likes.user_id="+req.authData.id+" AND comment_likes.comment_id=comment.id"+
-                " WHERE comment.post_id="+postID+" ORDER BY comment.date DESC LIMIT "+startRecord+", "+pageSize 
+                " WHERE comment.post_id="+postID+" ORDER BY comment.date ASC LIMIT "+startRecord+", "+pageSize 
 
     con.query(sql, (err, result)=>{
         if(err)
