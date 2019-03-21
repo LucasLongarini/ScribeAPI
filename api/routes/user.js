@@ -114,7 +114,6 @@ router.post('/login_email', (req,res)=>{
               " INNER JOIN user ON user.id = email_user.id WHERE email_user.email="+"'"+email+"'"
     con.query(sql, (err, result)=>{
         if(err){
-            console.log(err)
             return res.status(500).json({"Error":"Server Error"})
         }
         else if (result.length < 1)
@@ -163,28 +162,19 @@ router.get('/:userId', checkAuth,(req, res)=>{
  
 })
 
-router.post('/picture', checkAuth,(req, res)=>{
-    var data = new Buffer('');
-    req.on('data', (chunk)=>{
-        data = Buffer.concat([data, chunk]);
-    });
-    req.on('end', ()=>{
-        var id = "user_"+req.authData.id
-        cloudinary.v2.uploader.upload_stream({resource_type: 'image', public_id:id}, (error, result)=>{
-            if(error)
-                return res.status(500).json({Error:"Server Error"})
-            
-            var sql = "UPDATE user SET picture_path ='"+result.public_id+"'" +
-                        " WHERE id = "+req.authData.id
-                        // " WHERE id = 1"
-
-            con.query(sql, (err)=>{
-                if(err)return res.status(500).json({Error:"Server Error"})
-                else return res.status(200).json({Response:"Successful"})
-            })
-            
-        }).end(data);
-    });
+router.patch('/picture', checkAuth,(req, res)=>{
+    const pictureUrl = req.body.picture_path
+    if(!pictureUrl)
+        return res.status(400).json({Error:"Bad resquest"})
+    
+    const sql = "UPDATE user SET picture_path = ? WHERE id ="+req.authData.id
+    con.query(sql, [pictureUrl], (err,result)=>{
+        if(err)
+            return res.status(500).json({Error:"Server error"})
+        if(result.affectedRows < 1)
+            return res.status(400).json({Error:"Not found"})
+        return res.status(200).json({Result:"Success"})
+    })
 })
 
 router.post('/authenticate', checkAuth, (req,res)=>{
@@ -218,8 +208,8 @@ router.patch('/name', checkAuth, (req,res)=>{
     var name = req.body.name
     if(!name) 
         return res.status(400).json({Error:"Bad Request"})
-    const sql = "UPDATE user set name = '"+name+"' WHERE id="+req.authData.id
-    con.query(sql, (err, result)=>{
+    const sql = "UPDATE user set name = ? WHERE id="+req.authData.id
+    con.query(sql,[name.toLowerCase()], (err, result)=>{
         if(err)
             return res.status(500).json({"Error":"Server Error"})
         
@@ -234,11 +224,14 @@ router.patch('/email', checkAuth, (req, res)=>{
     var email = req.body.email
     if(!email)
         return res.status(400).json({Error:"Bad Request"})
-    const sql = "UPDATE email_user SET email = '"+email.toLowerCase()+"' WHERE id="+req.authData.id
-    con.query(sql, (err, result)=>{
+    if(!validateEmail(email))
+        return res.status(400).json({"Error":"Not a valid email address"})
+
+    const sql = "UPDATE email_user SET email = ? WHERE id="+req.authData.id
+    con.query(sql,[email.toLowerCase()], (err, result)=>{
         if(err){
             if(err.errno == 1062)
-                return res.status(400).json({"Error":"Email already exists"})
+                return res.status(409).json({"Error":"Email already exists"})
             else
                 return res.status(500).json({"Error":"Server Error"})
         }
@@ -252,24 +245,41 @@ router.patch('/email', checkAuth, (req, res)=>{
 })
 
 router.patch('/password', checkAuth, (req, res)=>{
-    var password = req.body.password
-    if(!password)
+    const newPassword = req.body.new_password
+    const oldPassword = req.body.old_password
+    if(!newPassword || !oldPassword)
         return res.status(400).json({Error:"Bad Request"})
-    bcrypt.hash(password, 10,(error, hash)=>{
+    
+    var sql = "SELECT password FROM email_user WHERE id="+req.authData.id
+    con.query(sql, (error,result)=>{
         if(error)
-            return res.status(500).json({"Error":"Server Error"})
+            return res.status(500).json({"Error":"Server Error 1"})
         
-        const sql = "UPDATE email_user SET password ='"+hash+"' WHERE id="+req.authData.id
-        con.query(sql, (err, result)=>{
+        else if(result.length < 1)
+            return res.status(400).json({Error:"Auth failed"})
+        var hashedOldPass = result[0].password
+        bcrypt.compare(oldPassword, hashedOldPass,(err, good)=>{
             if(err)
-                return res.status(500).json({Error:"Server Error"})
-            else if(result.affectedRows <= 0)
-                return res.status(400).json({Error:"Not found"})
-            
-            res.status(200).json({Result:"Success"})
-        })
+                return res.status(500).json({"Error":"Server Error 2"})
+            else if(!good)
+                return res.status(409).json({"Error":"Auth Failed"})
 
+            bcrypt.hash(newPassword, 10, (er, hash)=>{
+                if(er)
+                    return res.status(500).json({"Error":"Server Error 3"})
+                sql = "UPDATE email_user SET password = '"+hash+"' WHERE id="+req.authData.id
+                con.query(sql, (e, result)=>{
+                    if(e)
+                        return res.status(500).json({"Error":"Server Error 4"})
+                    else if (result.affectedRows < 1)
+                        return res.status(400).json({"Error":"Auth Failed"})
+                    else
+                        return res.status(200).json({Result:"Success"})
+                })
+            })
+        })
     })
+
 })
 
 function validateEmail(email) {
