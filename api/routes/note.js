@@ -5,7 +5,7 @@ const checkAuth = require('../auth')
 
 router.post('/:courseID', checkAuth, (req,res)=>{
     const courseID = req.params.courseID
-    const file_paths = req.body.file_paths
+    const file_paths = req.body.file_path
     if(!courseID || !file_paths || file_paths.length == 0)
         return res.status(400).json({Error:"Bad Request"})
 
@@ -49,7 +49,7 @@ router.get('/:courseID', checkAuth, (req,res)=>{
     const pageSize = 3
     var startRecord = pageSize*(page-1)
 
-    const sql = "SELECT note.*, user.name, user.picture_path, user.sex, user.fb_id, COALESCE(note_likes.value, 0) AS like_value FROM note "+
+    const sql = "SELECT note.*, user.id AS user_id, user.name, user.picture_path, user.sex, user.user_type, user.fb_id, COALESCE(note_likes.value, 0) AS like_value FROM note "+
                 " INNER JOIN user ON user.id=note.user_id LEFT JOIN note_likes ON note_likes.note_id=note.id AND note_likes.user_id="+req.authData.id+
                 " WHERE note.course_id="+courseID+" ORDER BY note.id LIMIT "+startRecord+", "+pageSize
     con.query(sql, (err,result)=>{
@@ -59,9 +59,9 @@ router.get('/:courseID', checkAuth, (req,res)=>{
             return res.status(200).json([])
 
         for(i=0; i<result.length; i++){
-            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, fb_id:result[i].fb_id}
+            var user = {id:result[i].user_id, name:result[i].name, picture_path:result[i].picture_path, sex:result[i].sex, user_type:result[i].user_type, fb_id:result[i].fb_id}
             result[i].user = user
-            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;
+            delete result[i].user_id; delete result[i].name; delete result[i].picture_path; delete result[i].sex; delete result[i].fb_id;delete result[i].user_type
         }
         
         var fileSql = "SELECT * FROM file_path WHERE note_id="+result[0].id
