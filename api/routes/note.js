@@ -51,7 +51,7 @@ router.get('/:courseID', checkAuth, (req,res)=>{
 
     const sql = "SELECT note.*, user.id AS user_id, user.name, user.picture_path, user.sex, user.user_type, user.fb_id, COALESCE(note_likes.value, 0) AS like_value FROM note "+
                 " INNER JOIN user ON user.id=note.user_id LEFT JOIN note_likes ON note_likes.note_id=note.id AND note_likes.user_id="+req.authData.id+
-                " WHERE note.course_id="+courseID+" ORDER BY note.id LIMIT "+startRecord+", "+pageSize
+                " WHERE note.course_id="+courseID+" ORDER BY note.id DESC LIMIT "+startRecord+", "+pageSize
     con.query(sql, (err,result)=>{
         if(err)
             return res.status(500).json({Error:"Server Error"})
@@ -68,7 +68,7 @@ router.get('/:courseID', checkAuth, (req,res)=>{
         for(var i=1; i<result.length; i++)
             fileSql += " OR note_id="+result[i].id
         
-        fileSql += " ORDER BY note_id"
+        fileSql += " ORDER BY note_id DESC"
 
         con.query(fileSql, (err, fileResult)=>{
             if(err)
