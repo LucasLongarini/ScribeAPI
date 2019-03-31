@@ -26,7 +26,7 @@ router.post('/login_facebook',passport.authenticate('facebook-token',{session: f
     if(!user)
         res.status(400).json({Error:"Auth Failed"})
     
-    var sql = "INSERT INTO user (name, user_type, fb_id) VALUES (?, 'facebook', "+user.fb_id+")"
+    var sql = "INSERT INTO user (name, user_type, fb_id) VALUES (?, 'facebook', '"+user.fb_id+"')"
 
     con.query(sql,[user.name.toLowerCase()], (err,result)=>{
         if(err){
