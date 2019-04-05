@@ -15,7 +15,7 @@ const courseRoutes = require('./api/routes/course')
 const noteRoutes = require('./api/routes/note')
 
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 app.listen(port, ()=>{
     console.log("Server Listening on port "+port)
 })
