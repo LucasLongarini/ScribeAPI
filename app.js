@@ -21,20 +21,20 @@ app.listen(port, ()=>{
 })
 
 app.get('/', (req, res)=>{
-    res.status(200).json({response:"Root"})
-    require('fs').readFileSync('./Courses/uofc.txt', 'utf-8').split(/\r?\n/).forEach(function(line){
-        var courses = line.split(" ");
-        var course = courses[0];
-        for(var i=1; i<courses.length; i++){
-            if(courses[i] != ""){
-                var sql = "INSERT INTO course (school_id, name, number) VALUES (1, '"+course+"', '"+courses[i]+"');"
-                con.query(sql, (err)=>{
-                    if(err)
-                        console.log(err)
-                })
-            }
-        }
-    })
+    // res.status(200).json({response:"Root"})
+    // require('fs').readFileSync('./Courses/uofc.txt', 'utf-8').split(/\r?\n/).forEach(function(line){
+    //     var courses = line.split(" ");
+    //     var course = courses[0];
+    //     for(var i=1; i<courses.length; i++){
+    //         if(courses[i] != ""){
+    //             var sql = "INSERT INTO course (school_id, name, number) VALUES (1, '"+course+"', '"+courses[i]+"');"
+    //             con.query(sql, (err)=>{
+    //                 if(err)
+    //                     console.log(err)
+    //             })
+    //         }
+    //     }
+    // })
 })
 
 app.use('/post', postRoutes)
