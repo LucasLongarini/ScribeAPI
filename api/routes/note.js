@@ -33,7 +33,7 @@ router.post('/:courseID', checkAuth, (req,res)=>{
             if(err2)
                 return res.status(500).json({Error:"Server Error"})
 
-            res.status(200).json({Result:"Success"})
+            res.status(200).json({id:noteId, Result:"Success"})
         })
 
     })
