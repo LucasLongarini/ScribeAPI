@@ -31,7 +31,7 @@ router.post('/login_facebook',passport.authenticate('facebook-token',{session: f
     con.query(sql,[user.name.toLowerCase()], (err,result)=>{
         if(err){
             if(err.errno==1062){
-                sql = "SELECT user.* FROM user WHERE fb_id="+user.fb_id
+                sql = "SELECT user.* FROM user WHERE fb_id='"+user.fb_id+"'"
                 con.query(sql,(err,result)=>{
                     if(err)
                         return res.status(500).json({Error:"Server error"})
