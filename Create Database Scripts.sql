@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS user(
     picture_path varchar(255),
     sex varchar(6) NULL,
     user_type varchar(10) NOT NULL,
-    fb_id varchar(24) UNSIGNED NULL UNIQUE
+    fb_id varchar(24) NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS email_user(
